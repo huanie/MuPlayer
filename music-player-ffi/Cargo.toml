@@ -1,0 +1,30 @@
+[package]
+name = "music-player-ffi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "music_player_ffi"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+lofty = "0.21"
+r2d2 = "0.8.10"
+r2d2_sqlite = "0.25"
+rayon = "1.10"
+thiserror = "1.0.61"
+rusqlite = { version = "0.32" }
+walkdir = "2.5.0"
+
+[build-dependencies]
+cbindgen = "0.27.0"
+
+[profile.release.package."*"]
+opt-level = 3
+strip = true
+
+[profile.release]
+opt-level = 3
+strip = true
+lto = true
+
