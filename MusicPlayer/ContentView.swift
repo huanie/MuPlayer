@@ -26,7 +26,10 @@ struct ContentView: View {
                     }
                 }
                 .onChange(of: self.mpv.paused) {
-                    nowPlayingPlayPause(self.mpv.paused)
+                    nowPlayingPlayPause(
+                        self.mpv.paused,
+                        progress: self.mpv.progress
+                    )
                 }
                 .toolbar {
                     ToolbarItemGroup(placement: .navigation) {

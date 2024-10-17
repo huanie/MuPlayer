@@ -61,13 +61,17 @@ public func initCommandCenter(_ mpv: AudioPlayer) {
     commandCenter.changePlaybackPositionCommand.isEnabled = true
 }
 
-public func nowPlayingPlayPause(_ paused: Bool) {
+public func nowPlayingPlayPause(_ paused: Bool, progress: Int64) {
     let nowPlaying = MPNowPlayingInfoCenter.default()
     if paused {
         nowPlaying.playbackState = .paused
     } else {
         nowPlaying.playbackState = .playing
     }
+    nowPlaying.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(
+        value:
+            progress
+    )
 }
 
 public func updateNowPlaying(_ song: borrowing Song) {
@@ -76,7 +80,8 @@ public func updateNowPlaying(_ song: borrowing Song) {
     nowPlayingInfo[MPMediaItemPropertyTitle] = song.songTitle
     nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = song.albumTitle
     nowPlayingInfo[MPMediaItemPropertyArtist] = song.artistName
-    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = song.duration
+    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = NSNumber(
+        value: song.duration)
     nowPlayingInfo[MPMediaItemPropertyDiscNumber] = song.discNumber
     nowPlayingInfo[MPMediaItemPropertyAlbumTrackNumber] = song.trackNumber
     let image = albumArt(for: song.path)
