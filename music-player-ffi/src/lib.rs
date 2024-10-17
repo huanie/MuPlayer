@@ -105,6 +105,21 @@ pub mod c_api {
             .1
             .is_empty() as i32
     }
+
+    /// Return 0 on success
+    /// # Safety
+    /// This is a C API
+    #[no_mangle]
+    pub unsafe extern "C" fn rescan_directory(
+        scan_directory: *const ffi::c_char,
+        database_file: *const ffi::c_char,
+    ) -> i32 {
+        let scan_directory = unsafe { ffi::CStr::from_ptr(scan_directory).to_str() };
+        let database_file = unsafe { ffi::CStr::from_ptr(database_file).to_str() };
+        !database::rescan_directory(err!(scan_directory), err!(database(err!(database_file))))
+            .1
+            .is_empty() as i32
+    }
     // #[derive(Clone)]
     // #[repr(C)]
     // pub struct Ptr(*mut ffi::c_void);

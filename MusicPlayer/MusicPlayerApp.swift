@@ -4,24 +4,31 @@ import SwiftUI
 
 @main
 struct MusicPlayerApp: App {
-    @State var showMainView = false
+    @State var showMainView: ScanProgress = .None
+    @State var rescanning: ScanProgress = .None
     @Environment(\.openWindow) private var openWindow
-    @AppStorage("mode") var mode: AudioPlayer.Mode = AudioPlayer.Mode.AlbumShuffle
+    @AppStorage("mode") var mode: AudioPlayer.Mode = AudioPlayer.Mode
+        .AlbumShuffle
     var body: some Scene {
         let showScan =
             !FileManager.default.fileExists(atPath: databasePath)
-            && !showMainView
+            && showMainView != .ScanComplete
         WindowGroup {
             if showScan {
-                WelcomeView(done: $showMainView)
+                WelcomeView(isScanning: $showMainView)
+            } else if rescanning == .Scanning {
+                ProgressView(label: {
+                    Text("Scanning")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                })
+                .progressViewStyle(.circular)
+                .padding()
             } else {
                 ContentView().onChange(of: mode) {
                     Globals.mpv.setMode(mode)
-                }.onAppear {                    
+                }.onAppear {
                     Globals.mpv.setMode(mode)
-                }
-                    .onDisappear {
-                    NSApplication.shared.terminate(nil)
                 }
             }
         }.windowToolbarStyle(
@@ -36,7 +43,7 @@ struct MusicPlayerApp: App {
                 .disabled(showScan)
             }
             CommandMenu("Playback") {
-                Button("Random Album") {                    
+                Button("Random Album") {
                     Globals.mpv.playRandomStartOfAlbum()
                 }.disabled(showScan)
                 Picker(selection: $mode, label: Text("Shuffle")) {
@@ -48,7 +55,7 @@ struct MusicPlayerApp: App {
             }
         }
         Settings {
-            SettingsView()
+            SettingsView(isScanning: self.$rescanning)
         }
         Window("Search", id: "searchWindow") {
             if !showScan {

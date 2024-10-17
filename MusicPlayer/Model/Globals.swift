@@ -9,6 +9,7 @@ struct Storage {
 }
 @MainActor
 struct Globals {
+    private init() {}
     static let database: DatabaseQueue = {
         try! DatabaseQueue(path: databasePath)
     }()

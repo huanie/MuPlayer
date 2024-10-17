@@ -27,7 +27,12 @@ cd ..
 4. Remove references to `.dylib` files
 5. Add `.dylib` files from `deps/include/mpv/` to the project
 6. Go to "Build Phases" of the target and add the `.dylib` files to "Copy Dylibs"
-7. Build
+7. Build Rust library
+```sh
+cd music-player-ffi
+./build-framework.sh
+```
+8. Build
 
 # Credits
 

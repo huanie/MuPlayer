@@ -6,32 +6,37 @@
 //
 
 import SwiftUI
+import MusicPlayerFFI
 
 struct LastFMCredentialsView: View {
     @AppStorage("LastFMUsername") var username = ""
     @AppStorage("LastFMPassword") var password = ""
     @State var error: String = ""
-    enum VerificationState : Int {
+    enum VerificationState: Int {
         case Nothing, Running, Error, AlreadyVerified
     }
-    @AppStorage("LastFMVerificationState") var verifying = VerificationState.Nothing
+    @AppStorage("LastFMVerificationState") var verifying = VerificationState
+        .Nothing
     var body: some View {
         VStack {
             TextField("Username", text: $username)
             SecureField("Password", text: $password)
             Button(action: {
                 verifying = .Running
-                LastFM.authenticate(username: username, password: password, errorCallback: { err in
-                    Task { @MainActor in
-                        error = err
-                        verifying = .Error
-                    }
-                }, successCallback: { session in
-                    Task { @MainActor in
-                        Storage.shared.apiSession = session
-                        verifying = .AlreadyVerified
-                    }
-                })
+                LastFM.authenticate(
+                    username: username, password: password,
+                    errorCallback: { err in
+                        Task { @MainActor in
+                            error = err
+                            verifying = .Error
+                        }
+                    },
+                    successCallback: { session in
+                        Task { @MainActor in
+                            Storage.shared.apiSession = session
+                            verifying = .AlreadyVerified
+                        }
+                    })
             }) {
                 Text("Sign in")
             }.keyboardShortcut(.defaultAction)
@@ -52,15 +57,28 @@ struct LastFMCredentialsView: View {
 }
 
 struct SettingsView: View {
+    @Binding var isScanning: ScanProgress
     var body: some View {
         TabView {
-            Tab( content: {
-                        LastFMCredentialsView()
-            }, label: {
-                Text("LastFM")
-            })
-        }.frame(width: 450, height: 250)
+            Tab(
+                content: {
+                    LastFMCredentialsView()
+                },
+                label: {
+                    Label("LastFM", image: "lastfm")
+                })
+            if FileManager.default.fileExists(atPath: databasePath) {
+                Tab("Library", systemImage: "folder") {
+                    FolderView(
+                        rescan_directory,
+                        isScanning: self.$isScanning,
+                        directories: Set(try! Globals.database.read {
+                                try! String.fetchAll($0, sql: "SELECT path FROM directory")
+                        })
+                    )
+                }
+            }
+        }
+        .frame(width: 450, height: 250)
     }
 }
-
-

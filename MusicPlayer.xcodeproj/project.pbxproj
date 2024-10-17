@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BF07815A2CC1A2C000F04A73 /* MusicPlayerFFI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFB4BA102CB5BEA200E88C32 /* MusicPlayerFFI.xcframework */; };
 		BF5FA90B2CB7355500F8F94A /* BTree in Frameworks */ = {isa = PBXBuildFile; productRef = BF5FA90A2CB7355500F8F94A /* BTree */; };
 		BF9A1C922CB67B1C00FCEA2B /* libaom.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BF41D44D2CB5F03900768330 /* libaom.3.dylib */; };
 		BF9A1C932CB67B1C00FCEA2B /* libarchive.13.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = BF41D44E2CB5F03900768330 /* libarchive.13.dylib */; };
@@ -202,7 +203,6 @@
 		BF9A1EE92CB67BBA00FCEA2B /* libSDL2-2.0.0.dylib in Copy Dylibs */ = {isa = PBXBuildFile; fileRef = BF41D4852CB5F03900768330 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BF9A1EEA2CB67BBA00FCEA2B /* libshaderc_shared.1.dylib in Copy Dylibs */ = {isa = PBXBuildFile; fileRef = BF41D4862CB5F03900768330 /* libshaderc_shared.1.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		BF9A1EEB2CB67BBA00FCEA2B /* libsharpyuv.0.dylib in Copy Dylibs */ = {isa = PBXBuildFile; fileRef = BF41D4872CB5F03900768330 /* libsharpyuv.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		BFA5AED52CB6EC3A008B6FB8 /* MusicPlayerFFI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFB4BA102CB5BEA200E88C32 /* MusicPlayerFFI.xcframework */; };
 		BFB4BA262CB5BF2600E88C32 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = BFB4BA252CB5BF2600E88C32 /* GRDB */; };
 /* End PBXBuildFile section */
 
@@ -445,7 +445,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFA5AED52CB6EC3A008B6FB8 /* MusicPlayerFFI.xcframework in Frameworks */,
+				BF07815A2CC1A2C000F04A73 /* MusicPlayerFFI.xcframework in Frameworks */,
 				BF9A1C922CB67B1C00FCEA2B /* libaom.3.dylib in Frameworks */,
 				BF9A1C932CB67B1C00FCEA2B /* libarchive.13.dylib in Frameworks */,
 				BF9A1C942CB67B1C00FCEA2B /* libaribb24.0.dylib in Frameworks */,
@@ -684,7 +684,6 @@
 				BFB4B9F82CB5BB4600E88C32 /* Sources */,
 				BFB4B9F92CB5BB4600E88C32 /* Frameworks */,
 				BFB4B9FA2CB5BB4600E88C32 /* Resources */,
-				BFB4BA0E2CB5BC3900E88C32 /* Build Rust */,
 				BF41D4C32CB5F1A200768330 /* Copy Dylibs */,
 				BF43A8162CB5F2B20027D95C /* Copy Dylib Symlinks */,
 			);
@@ -774,25 +773,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#echo \"Copy symlinks:\"\n\nfor file in \"${SRCROOT}/deps/lib/\"*.dylib; do\n    if [[ -h \"$file\" ]]; then\n        cp -R $file \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/$(basename $file)\"\n    fi\ndone\n";
-		};
-		BFB4BA0E2CB5BC3900E88C32 /* Build Rust */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build Rust";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\necho \"Building Rust library\"\ncd \"music-player-ffi\"\nbash ./build-framework.sh\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

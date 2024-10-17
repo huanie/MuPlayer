@@ -9,6 +9,11 @@ CREATE TABLE IF NOT EXISTS album (
   PRIMARY KEY (album_title, artist_name)
 );
 
+CREATE TABLE IF NOT EXISTS directory (
+  path TEXT NOT NULL,
+  PRIMARY KEY (path)
+);
+
 CREATE TABLE IF NOT EXISTS song (
   path TEXT NOT NULL,
   title TEXT NOT NULL,
@@ -18,7 +23,9 @@ CREATE TABLE IF NOT EXISTS song (
   track_number INTEGER NOT NULL,
   duration INTEGER NOT NULL,
   album_title TEXT NOT NULL,
+  directory TEXT NOT NULL,
   FOREIGN KEY (album_title, artist_name) REFERENCES album (album_title, artist_name) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (directory) REFERENCES directory (path) ON DELETE CASCADE,
   PRIMARY KEY (path)
 );
 
@@ -55,22 +62,22 @@ BEGIN
     );
 END;
 
-CREATE TRIGGER IF NOT EXISTS delete_song_from_search
-AFTER DELETE ON song
-FOR EACH ROW
-BEGIN
-  DELETE FROM song_search
-  WHERE path = OLD.path;
-END;
+-- CREATE TRIGGER IF NOT EXISTS delete_song_from_search
+-- AFTER DELETE ON song
+-- FOR EACH ROW
+-- BEGIN
+--   DELETE FROM song_search
+--   WHERE path = OLD.path;
+-- END;
 
-CREATE TRIGGER IF NOT EXISTS update_song_in_search
-AFTER UPDATE ON song
-FOR EACH ROW
-BEGIN
-  UPDATE song_search
-  SET path = NEW.path,
-      title = NEW.title,
-      artist_name = NEW.artist_name,
-      album_title = NEW.album_title
-  WHERE path = OLD.path;
-END;
+-- CREATE TRIGGER IF NOT EXISTS update_song_in_search
+-- AFTER UPDATE ON song
+-- FOR EACH ROW
+-- BEGIN
+--   UPDATE song_search
+--   SET path = NEW.path,
+--       title = NEW.title,
+--       artist_name = NEW.artist_name,
+--       album_title = NEW.album_title
+--   WHERE path = OLD.path;
+-- END;
