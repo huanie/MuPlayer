@@ -61,6 +61,13 @@ public func initCommandCenter(_ mpv: AudioPlayer) {
     commandCenter.changePlaybackPositionCommand.isEnabled = true
 }
 
+public func updateTime(_ time: Int64) {
+    let nowPlaying = MPNowPlayingInfoCenter.default()
+    nowPlaying.nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = NSNumber(
+        value: time
+    )
+}
+
 public func nowPlayingPlayPause(_ paused: Bool, progress: Int64) {
     let nowPlaying = MPNowPlayingInfoCenter.default()
     if paused {

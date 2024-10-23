@@ -94,18 +94,15 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
               self.progress = newValue
             }
           }
-//          if mpv_event.pointee.reply_userdata == PLAYLIST_POS_ID {
-//            // file has been loaded
-//            if data.pointee.data.assumingMemoryBound(to: Int64.self).pointee == 1 {
-//              DispatchQueue.main.async {
-//                self.preloadNext()
-//              }
-//            }
-//          }
         }
         continue
       case MPV_EVENT_NONE:
         return
+      case MPV_EVENT_SEEK:
+          var out = Int64(0)
+          mpv_get_property(mpvHandle.handle, "time-pos", MPV_FORMAT_INT64, &out)
+          updateTime(out)
+          continue
        case MPV_EVENT_END_FILE:
        let data = UnsafeMutablePointer(
          mpv_event.pointee.data!.assumingMemoryBound(to: mpv_event_end_file.self))
@@ -176,7 +173,7 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
   }
 
   public func seek(_ percentage: Double) {
-    self.command("seek", arguments: ["\(percentage)", "absolute-percent"])
+    self.command("seek", arguments: ["\(percentage)", "absolute-percent"])      
   }
   public func seekAbsolute(_ value: Double) {
     self.command("seek", arguments: ["\(value)", "absolute"])
