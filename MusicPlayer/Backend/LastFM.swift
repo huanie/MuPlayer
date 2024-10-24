@@ -4,6 +4,35 @@ import Foundation
 
 public enum LastFM {
     private static let API_PATH = "http://ws.audioscrobbler.com/2.0/"
+    private static let queue = DispatchQueue(label: "nowPlaying.queue", qos: .background)
+    @MainActor
+    static public func scrobble(_ song: borrowing Song) {
+        if Storage.shared.apiSession.isEmpty {
+            return
+        }
+        let request = withSignature(
+            Map<String, String>(
+                dictionaryLiteral: ("artist[0]", song.artistName),
+                ("method", "track.scrobble"),
+                ("track[0]", song.songTitle),
+                ("album[0]", song.albumTitle),
+                ("trackNumber[0]", String(song.trackNumber)),
+                ("duration[0]", String(song.duration)),
+                ("timestamp[0]" , String(UInt(Date().timeIntervalSince1970) - song.duration)),
+                ("api_key", API_KEY),
+                ("sk", Storage.shared.apiSession)
+            ),
+            secret: API_SECRET
+        )
+        print("Sending scrobble")
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let _ = data, error == nil else {
+                print("Error: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+        }
+        .resume()
+    }
     @MainActor
     static public func updateNowPlaying(_ song: borrowing Song) {
         if Storage.shared.apiSession.isEmpty {

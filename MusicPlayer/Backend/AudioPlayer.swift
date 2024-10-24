@@ -118,8 +118,8 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
     }
   }
   private func preloadNext() {
-      // TODO: fix this
     let previous = self.currentSong
+    LastFM.scrobble(previous!)
     self.clearPlaylist()
     let current = self.queueNext()
     self.currentSong = current
