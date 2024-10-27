@@ -26,7 +26,7 @@ public enum LastFM {
             secret: API_SECRET
         )
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let x = data, error == nil else {
+            guard let _ = data, error == nil else {
                 print("Error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
@@ -54,7 +54,7 @@ public enum LastFM {
             secret: API_SECRET
         )
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let x = data, error == nil else {
+            guard let _ = data, error == nil else {
                 print("Error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
