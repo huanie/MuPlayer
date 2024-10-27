@@ -26,7 +26,7 @@ public struct Song: Hashable, Codable, Model, Identifiable,
   public static func columns(alias: String = "") -> String {
     let list = [
       "artist_name", "title", "album_title", "disc_number", "track_number", "rowid", "path",
-      "duration", "album_artist"
+      "duration", "album_artist",
     ]
     return
       (alias.isEmpty
@@ -88,7 +88,7 @@ extension Song: FetchableRecord {
     self.duration = row["duration"]
     self.rowid = row["rowid"]
     self.trackNumber = row["track_number"]
-      self.albumArtist = row["album_artist"]
+    self.albumArtist = row["album_artist"]
   }
 }
 

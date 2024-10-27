@@ -23,12 +23,12 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
     var handle: OpaquePointer
     init(_ handle: OpaquePointer) { self.handle = handle }
   }
-    public enum Mode: Int, RawRepresentable {
-        case Sequential = 1
+  public enum Mode: Int, RawRepresentable {
+    case Sequential = 1
     case Shuffle = 2
     case AlbumShuffle = 3
   }
-    public var mode: Mode
+  public var mode: Mode
   public var paused = true
   public var currentSong: Song? = nil
   public var progress = Int64(0)
@@ -39,8 +39,8 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
   public
     init(db: DatabaseQueue, volume: UInt = 40, shuffleMode: Mode = .AlbumShuffle)
   {
-      self.database = db
-      self.mode = shuffleMode
+    self.database = db
+    self.mode = shuffleMode
     let mpv_ctx = mpv_create()
     if mpv_initialize(mpv_ctx) != 0 || mpv_ctx == nil {
       preconditionFailure("Could not initialize MPV")
@@ -70,16 +70,16 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
 
     mpv_set_wakeup_callback(self.mpv.handle, wakeup, Unmanaged.passUnretained(self).toOpaque())
   }
-    public func setMode(_ mode: Mode) {
-        self.mode = mode
-        if let song = self.currentSong {
-            self.newSongs(
-                next: self.nextSong(song.path),
-                previous: self.previousSong(song.path)
-            )
-        }
+  public func setMode(_ mode: Mode) {
+    self.mode = mode
+    if let song = self.currentSong {
+      self.newSongs(
+        next: self.nextSong(song.path),
+        previous: self.previousSong(song.path)
+      )
     }
-    fileprivate nonisolated func process_mpv_events(mpvHandle: sending MpvHandle) {
+  }
+  fileprivate nonisolated func process_mpv_events(mpvHandle: sending MpvHandle) {
     while true {
       let mpv_event = mpv_wait_event(mpvHandle.handle, 0)!
       switch mpv_event.pointee.event_id {
@@ -99,18 +99,18 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
       case MPV_EVENT_NONE:
         return
       case MPV_EVENT_SEEK:
-          var out = Int64(0)
-          mpv_get_property(mpvHandle.handle, "time-pos", MPV_FORMAT_INT64, &out)
-          updateTime(out)
-          continue
-       case MPV_EVENT_END_FILE:
-       let data = UnsafeMutablePointer(
-         mpv_event.pointee.data!.assumingMemoryBound(to: mpv_event_end_file.self))
-       if data.pointee.reason == MPV_END_FILE_REASON_EOF {
-         DispatchQueue.main.async {
-           self.preloadNext()
-         }
-       }
+        var out = Int64(0)
+        mpv_get_property(mpvHandle.handle, "time-pos", MPV_FORMAT_INT64, &out)
+        updateTime(out)
+        continue
+      case MPV_EVENT_END_FILE:
+        let data = UnsafeMutablePointer(
+          mpv_event.pointee.data!.assumingMemoryBound(to: mpv_event_end_file.self))
+        if data.pointee.reason == MPV_END_FILE_REASON_EOF {
+          DispatchQueue.main.async {
+            self.preloadNext()
+          }
+        }
       case MPV_EVENT_SHUTDOWN:
         return
       default: continue
@@ -126,19 +126,19 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
     self.newSongs(next: self.nextSong(current.path), previous: previous!)
   }
 
-    private func queueNext() -> Song {
+  private func queueNext() -> Song {
     self.queue[0]
   }
 
-    private func queuePrevious() -> Song {
+  private func queuePrevious() -> Song {
     self.queue[1]
   }
 
   private func newSongs(next: consuming Song, previous: consuming Song) {
     self.queue[0] = next
     self.queue[1] = previous
-      self.loadFile(self.queue[0], flag: LoadFile.Append)
-      self.loadFile(self.queue[1], flag: LoadFile.Append)
+    self.loadFile(self.queue[0], flag: LoadFile.Append)
+    self.loadFile(self.queue[1], flag: LoadFile.Append)
   }
 
   private func loadFile(_ song: borrowing Song, flag: borrowing LoadFile) {
@@ -155,14 +155,13 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
     list.append(strdup(command))
     for x in arguments { list.append(strdup(x)) }
     list.append(nil)
-      defer {
-          for ptr in list
-          {
-              if ptr != nil {
-                  free(UnsafeMutablePointer(mutating: ptr!))
-              }
-          }
+    defer {
+      for ptr in list {
+        if ptr != nil {
+          free(UnsafeMutablePointer(mutating: ptr!))
+        }
       }
+    }
     let ret = list.withUnsafeMutableBufferPointer {
       mpv_command(self.mpv.handle, $0.baseAddress)
     }
@@ -173,7 +172,7 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
   }
 
   public func seek(_ percentage: Double) {
-    self.command("seek", arguments: ["\(percentage)", "absolute-percent"])      
+    self.command("seek", arguments: ["\(percentage)", "absolute-percent"])
   }
   public func seekAbsolute(_ value: Double) {
     self.command("seek", arguments: ["\(value)", "absolute"])
