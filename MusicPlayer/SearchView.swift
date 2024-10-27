@@ -13,6 +13,8 @@ class SearchModel: ObservableObject {
 }
 
 struct SearchView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var rescan: ScanProgress
     let mpv: AudioPlayer = Globals.mpv
     let database: DatabaseQueue = Globals.database
     @FocusState private var focusedField: Bool
@@ -61,9 +63,14 @@ struct SearchView: View {
                         }
                         self.mpv.playSong(song)
                     }
-                }
+                }                
             }
-        }.frame(
+        }.onChange(of: self.rescan) {            
+            if self.rescan == .Scanning {
+                dismiss()
+            }
+        }
+        .frame(
             maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

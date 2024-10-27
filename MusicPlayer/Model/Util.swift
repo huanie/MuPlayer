@@ -1,4 +1,5 @@
 import Foundation
+import MusicPlayerFFI
 
 public func formatTime(_ seconds: UInt) -> String {
   let hours = seconds / 3600
@@ -23,3 +24,14 @@ public let databasePath = try! FileManager.default.url(
   "db"
 )
 .path(percentEncoded: false)
+
+public func rescan(path: CString, dbFile: CString) -> Int32 {
+    DispatchQueue.main.async {
+        Globals.mpv.pause()
+    }
+        let ret = rescan_directory(path, dbFile)
+    DispatchQueue.main.async {
+        Globals.mpv.unpause()
+    }
+        return ret
+}

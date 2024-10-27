@@ -69,8 +69,7 @@ struct SettingsView: View {
                 })
             if FileManager.default.fileExists(atPath: databasePath) {
                 Tab("Library", systemImage: "folder") {
-                    FolderView(
-                        rescan_directory,
+                    FolderView( rescan,
                         isScanning: self.$isScanning,
                         directories: Set(try! Globals.database.read {
                                 try! String.fetchAll($0, sql: "SELECT path FROM directory")

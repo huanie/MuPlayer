@@ -26,8 +26,11 @@ pub fn scan_directory<P: AsRef<Path> + std::marker::Sync + std::marker::Send>(
     {
         let conn = pool_cl.get().unwrap();
         conn.execute(
-            "INSERT OR IGNORE INTO directory(path) VALUES (?1)",
-            [root.as_ref().to_str().unwrap()],
+            "INSERT OR IGNORE INTO directory(path, modified_stamp) VALUES (?1, ?2)",
+            rusqlite::params![
+                root.as_ref().to_str().unwrap(),
+                root.as_ref().metadata().unwrap().mtime(),
+            ],
         )
         .unwrap();
     }

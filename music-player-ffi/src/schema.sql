@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS album (
 
 CREATE TABLE IF NOT EXISTS directory (
   path TEXT NOT NULL,
+  modified_stamp INTEGER NOT NULL,
   PRIMARY KEY (path)
 );
 

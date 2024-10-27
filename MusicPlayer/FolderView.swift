@@ -11,7 +11,7 @@ import Foundation
 enum ScanProgress {
     case None, Scanning, ScanComplete
 }
-typealias CString = UnsafePointer<CChar>?
+public typealias CString = UnsafePointer<CChar>?
 struct FolderView: View {
     func handleDroppedURLS(_ urls: [URL]) -> Bool {
         let x = urls.filter {
