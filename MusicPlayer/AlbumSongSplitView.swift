@@ -62,7 +62,7 @@ struct AlbumSongSplitView: View {
                                                     sql: """
                                                         SELECT \(Song.columns(alias: "s"))
                                                         FROM song s
-                                                        INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.artist_name
+                                                        INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.album_artist
                                                         WHERE s.disc_number = 1 AND s.track_number = 1 AND a.rowid = ?
                                                         """,
                                                     arguments: [
@@ -112,12 +112,12 @@ struct AlbumSongSplitView: View {
                                         sql: """
                                             SELECT a.rowid
                                             FROM song s
-                                            INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.artist_name
-                                            WHERE s.album_title = ? AND s.artist_name = ?
+                                            INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.album_artist
+                                            WHERE s.album_title = ? AND s.album_artist = ?
                                             """,
                                         arguments: [
                                             currentSong.albumTitle,
-                                            currentSong.artistName,
+                                            currentSong.albumArtist,
                                         ])
                                 }
                                 scrollReader.scrollTo(self.selectedAlbum!)
@@ -135,9 +135,9 @@ struct AlbumSongSplitView: View {
                                 """
                                 SELECT \(Song.columns(alias: "s"))
                                 FROM song s
-                                INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.artist_name
+                                INNER JOIN album a on a.album_title = s.album_title AND a.artist_name = s.album_artist
                                 WHERE a.rowid = ?
-                                ORDER BY s.artist_name COLLATE NOCASE, s.album_title COLLATE NOCASE, s.disc_number, s.track_number
+                                ORDER BY s.album_artist COLLATE NOCASE, s.album_title COLLATE NOCASE, s.disc_number, s.track_number
                                 """, arguments: [rowid]
                         )
                     }

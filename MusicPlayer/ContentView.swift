@@ -83,7 +83,7 @@ struct ContentView: View {
                             if let song = mpv.currentSong {
                                 Text("\(song.songTitle)").foregroundStyle(
                                     .primary)
-                                Text("\(song.artistName) - \(song.albumTitle)")
+                                Text("\(song.albumArtist) - \(song.albumTitle)")
                                     .font(.caption).foregroundStyle(
                                         .gray)
                                 SeekSlider(mpv: self.mpv)

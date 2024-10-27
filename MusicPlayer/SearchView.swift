@@ -21,7 +21,7 @@ struct SearchView: View {
     var body: some View {
         VStack {
             TextField("Search songs", text: $searchModel.text)
-                .focused($focusedField)
+                .focused($focusedField).onAppear {focusedField = true}
             if !searchModel.debouncedText.isEmpty {
                 let songs = try! database.read {
                     try! Song.fetchAll(
@@ -44,7 +44,7 @@ struct SearchView: View {
                     TableColumn("Nr") {
                         Text("\($0.discNumber).\($0.trackNumber)")
                     }.width(ideal: 1)
-                    TableColumn("Artist", value: \.artistName)
+                    TableColumn("Artist", value: \.albumArtist)
                     TableColumn("Album", value: \.albumTitle)
                     TableColumn("Title", value: \.songTitle)
                     TableColumn("Duration") {

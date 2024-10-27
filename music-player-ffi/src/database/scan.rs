@@ -68,7 +68,7 @@ INSERT INTO song_search(title,
   album_title,
   path
 )
-SELECT title, artist_name, album_title, path FROM song"#,
+SELECT title, album_artist, album_title, path FROM song"#,
         [],
     )
     .unwrap();
@@ -156,10 +156,10 @@ fn insert_into(path: &Path, root: &Path, pool: SqlitePool) -> Either<(), error::
     }
     transaction.prepare_cached(r#"
 INSERT OR IGNORE
-INTO song (disc_number, path, title, modified_stamp, artist_name, track_number, duration, album_title, directory)
-VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
+INTO song (disc_number, path, title, modified_stamp, artist_name, track_number, duration, album_title, directory, album_artist)
+VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
 "#).unwrap().execute(
-    rusqlite::params![disc_number, path.to_str().unwrap(), title, mtime, artist, track_number, duration, album, root.to_str().unwrap()]).unwrap();
+    rusqlite::params![disc_number, path.to_str().unwrap(), title, mtime, track_artist, track_number, duration, album, root.to_str().unwrap(), artist]).unwrap();
     transaction.commit().unwrap();
 
     Either::Left(())

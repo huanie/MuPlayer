@@ -16,6 +16,7 @@ public enum LastFM {
                 ("method", "track.scrobble"),
                 ("track[0]", song.songTitle),
                 ("album[0]", song.albumTitle),
+                ("albumArtist[0]", song.albumArtist),
                 ("trackNumber[0]", String(song.trackNumber)),
                 ("duration[0]", String(song.duration)),
                 ("timestamp[0]" , String(UInt(Date().timeIntervalSince1970) - song.duration)),
@@ -24,12 +25,12 @@ public enum LastFM {
             ),
             secret: API_SECRET
         )
-        print("Sending scrobble")
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let _ = data, error == nil else {
+            guard let x = data, error == nil else {
                 print("Error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
+            //print(String(data: x, encoding: .utf8))
         }
         .resume()
     }
@@ -44,6 +45,7 @@ public enum LastFM {
                 ("method", "track.updateNowPlaying"),
                 ("track", song.songTitle),
                 ("album", song.albumTitle),
+                ("albumArtist", song.albumArtist),
                 ("trackNumber", String(song.trackNumber)),
                 ("duration", String(song.duration)),
                 ("api_key", API_KEY),
@@ -52,10 +54,11 @@ public enum LastFM {
             secret: API_SECRET
         )
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let _ = data, error == nil else {
+            guard let x = data, error == nil else {
                 print("Error: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
+            //print(String(data: x, encoding: .utf8))
         }
         .resume()
     }

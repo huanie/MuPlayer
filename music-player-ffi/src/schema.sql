@@ -19,12 +19,13 @@ CREATE TABLE IF NOT EXISTS song (
   title TEXT NOT NULL,
   modified_stamp INTEGER NOT NULL,
   artist_name TEXT NOT NULL,
+  album_artist TEXT NOT NULL,
   disc_number INTEGER NOT NULL,
   track_number INTEGER NOT NULL,
   duration INTEGER NOT NULL,
   album_title TEXT NOT NULL,
   directory TEXT NOT NULL,
-  FOREIGN KEY (album_title, artist_name) REFERENCES album (album_title, artist_name) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (album_title, album_artist) REFERENCES album (album_title, artist_name) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (directory) REFERENCES directory (path) ON DELETE CASCADE,
   PRIMARY KEY (path)
 );
@@ -42,11 +43,11 @@ FOR EACH ROW
 BEGIN
   DELETE FROM album
   WHERE album_title = OLD.album_title
-    AND artist_name = OLD.artist_name
+    AND artist_name = OLD.album_artist
     AND NOT EXISTS (
       SELECT 1 FROM song
       WHERE album_title = OLD.album_title
-        AND artist_name = OLD.artist_name
+        AND album_artist = OLD.album_artist
     );
 END;
 

@@ -16,16 +16,17 @@ public struct Song: Hashable, Codable, Model, Identifiable,
   public let trackNumber: UInt
   public let duration: UInt
   public let rowid: Int
+  public let albumArtist: String
 
   public var id: Int { rowid }
   public static let dummy = Song(
     path: "", songTitle: "", artistName: "", albumTitle: "", discNumber: 0, trackNumber: 0,
-    duration: 0, rowid: 0)
+    duration: 0, rowid: 0, albumArtist: "")
 
   public static func columns(alias: String = "") -> String {
     let list = [
       "artist_name", "title", "album_title", "disc_number", "track_number", "rowid", "path",
-      "duration",
+      "duration", "album_artist"
     ]
     return
       (alias.isEmpty
@@ -41,24 +42,24 @@ public struct Song: Hashable, Codable, Model, Identifiable,
       totalSizeQuery: "SELECT count(rowid) FROM song",
       anchorQuery: #"""
         WITH Numbered AS (
-          SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path,
+          SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path, album_artist,
                  ROW_NUMBER()
-                   OVER (ORDER BY artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) as rn
+                   OVER (ORDER BY album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) as rn
           FROM song
         )
 
-        SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path
+        SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path, album_artist
         FROM Numbered
         WHERE rn % ? = 1
         """#,
       fetchQuery: #"""
-        SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path
+        SELECT artist_name, title, album_title, disc_number, track_number, duration, rowid, path, album_artist
         FROM song
-        WHERE (artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) >=
-              (SELECT artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
+        WHERE (album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) >=
+              (SELECT album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
                FROM song
                WHERE rowid = ?)
-        ORDER BY artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
+        ORDER BY album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
         LIMIT ?
         """#
     )
@@ -87,6 +88,7 @@ extension Song: FetchableRecord {
     self.duration = row["duration"]
     self.rowid = row["rowid"]
     self.trackNumber = row["track_number"]
+      self.albumArtist = row["album_artist"]
   }
 }
 

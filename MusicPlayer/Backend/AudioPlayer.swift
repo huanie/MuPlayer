@@ -240,14 +240,14 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
           sql:
             """
             WITH selected_track AS (
-            SELECT disc_number, track_number, album_title, artist_name
+            SELECT disc_number, track_number, album_title, album_artist
             FROM song
             WHERE path = ?
             )
             SELECT \(Song.columns())
             FROM song
             WHERE album_title = (SELECT album_title FROM selected_track)  -- same album
-            AND artist_name = (SELECT artist_name FROM selected_track) -- same artist
+            AND album_artist = (SELECT album_artist FROM selected_track) -- same artist
             AND (disc_number, track_number) <
             (SELECT disc_number, track_number FROM selected_track)   -- later track
             ORDER BY disc_number DESC, track_number DESC
@@ -263,11 +263,11 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
             """
             SELECT \(Song.columns())
             FROM song
-            WHERE (artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) <
-            (SELECT artist_name, album_title, disc_number, track_number
+            WHERE (album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) <
+            (SELECT album_artist, album_title, disc_number, track_number
             FROM song
             WHERE path = ?1)
-            ORDER BY artist_name COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
+            ORDER BY album_artist COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
             LIMIT 1
             """,
           arguments: [song])
@@ -285,14 +285,14 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
           sql:
             """
             WITH selected_track AS (
-            SELECT disc_number, track_number, album_title, artist_name
+            SELECT disc_number, track_number, album_title, album_artist
             FROM song
             WHERE path = ?
             )
             SELECT \(Song.columns())
             FROM song
             WHERE album_title = (SELECT album_title FROM selected_track)  -- same album
-            AND artist_name = (SELECT artist_name FROM selected_track) -- same artist
+            AND album_artist = (SELECT album_artist FROM selected_track) -- same artist
             AND (disc_number, track_number) >
             (SELECT disc_number, track_number FROM selected_track)   -- later track
             ORDER BY disc_number, track_number
@@ -308,11 +308,11 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
             """
             SELECT \(Song.columns())
             FROM song
-            WHERE (artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) <
-            (SELECT artist_name, album_title, disc_number, track_number
+            WHERE (album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number) <
+            (SELECT album_artist, album_title, disc_number, track_number
             FROM song
             WHERE path = ?1)
-            ORDER BY artist_name COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
+            ORDER BY album_artist COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
             LIMIT 1
             """,
           arguments: [song])
@@ -329,7 +329,7 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
           """
           SELECT \(Song.columns())
           FROM song
-          ORDER BY artist_name COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
+          ORDER BY album_artist COLLATE NOCASE, album_title COLLATE NOCASE, disc_number, track_number
           LIMIT 1
           """)!
     }
@@ -343,7 +343,7 @@ private func wakeup(_ ctx: UnsafeMutableRawPointer?) {
           """
           SELECT \(Song.columns())
           FROM song
-          ORDER BY artist_name COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
+          ORDER BY album_artist COLLATE NOCASE DESC, album_title COLLATE NOCASE DESC, disc_number DESC, track_number DESC
           LIMIT 1
           """)!
     }
