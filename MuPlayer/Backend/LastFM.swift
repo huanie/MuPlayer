@@ -175,6 +175,6 @@ class LastFM {
                 rawValue: defaults.integer(forKey: "lastFMisVerified")
             ) ?? .none
         }
-        set { defaults.set(newValue, forKey: "lastFMisVerified") }
+        set { defaults.set(newValue.rawValue, forKey: "lastFMisVerified") }
     }
 }

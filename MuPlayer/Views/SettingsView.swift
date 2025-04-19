@@ -55,14 +55,19 @@ struct SettingsView: View {
 
 struct LastFMCredentialsView: View {
     let lastFM: LastFM
+    enum LoginState { case none, ok, error }
     @State var username: String = ""
     @State var password: String = ""
-    @State var hasError = false
+    @State var loginState = LoginState.none
+    @State var showError = false
     @State var errorMessage: String = ""
     init(lastFM: LastFM) {
         self.lastFM = lastFM
     }
     var body: some View {
+        if loginState == .ok {
+            Text("Logged in")
+        }
         Form {
             Section {
                 TextField("Username", text: $username)
@@ -81,13 +86,14 @@ struct LastFMCredentialsView: View {
                             password: password,
                             errorCallback: { msg in
                                 DispatchQueue.main.async {
-                                    hasError = true
+                                    loginState = .error
+                                    showError = true
                                     errorMessage = msg
                                 }
                             },
                             successCallback: { key in
                                 DispatchQueue.main.async {
-                                    hasError = false
+                                    loginState = .ok
                                     lastFM.apiSession = key
                                     lastFM.isVerified = .verified
                                     lastFM.username = username
@@ -102,7 +108,7 @@ struct LastFMCredentialsView: View {
         }
         .alert(
             "lastFM login error",
-            isPresented: $hasError
+            isPresented: $showError
         ) {
 
         } message: {

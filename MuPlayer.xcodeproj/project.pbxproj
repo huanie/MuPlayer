@@ -9,9 +9,24 @@
 /* Begin PBXBuildFile section */
 		51143DEC2DA2E32C00C17D90 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 51143DEB2DA2E32C00C17D90 /* GRDB */; };
 		51143DEF2DA2E3F300C17D90 /* SFBAudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 51143DEE2DA2E3F300C17D90 /* SFBAudioEngine */; };
+		5130A2372DB4474100B1B01A /* BTree in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 51EDF9C32DB3DA5A004CF479 /* BTree */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		514A7C692DB2CFF5008B40F1 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 514A7C682DB2CFF5008B40F1 /* AsyncAlgorithms */; };
 		51EDF9C42DB3DA5A004CF479 /* BTree in Frameworks */ = {isa = PBXBuildFile; productRef = 51EDF9C32DB3DA5A004CF479 /* BTree */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5130A2382DB4474100B1B01A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				5130A2372DB4474100B1B01A /* BTree in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		51143DD52DA2E07400C17D90 /* MuPlayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MuPlayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,6 +94,7 @@
 				51143DD12DA2E07400C17D90 /* Sources */,
 				51143DD22DA2E07400C17D90 /* Frameworks */,
 				51143DD32DA2E07400C17D90 /* Resources */,
+				5130A2382DB4474100B1B01A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -295,6 +311,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuPlayer/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -324,6 +341,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MuPlayer/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

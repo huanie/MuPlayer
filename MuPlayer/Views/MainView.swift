@@ -26,32 +26,6 @@ struct MainView: View {
                 .order(sql: "artist COLLATE NOCASE, title COLLATE NOCASE")
                 .fetchAll($0)
         }
-        //        self.albums = LazyList(
-        //            db,
-        //            totalSizeQuery: "SELECT count(rowid) FROM album",
-        //            anchorQuery: #"""
-        //                WITH Numbered AS (
-        //                SELECT title, artist, rowid,
-        //                    ROW_NUMBER()
-        //                        OVER (ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE) as rn
-        //                FROM album )
-        //
-        //                SELECT title, artist, rowid
-        //                FROM Numbered
-        //                WHERE rn % ? = 1
-        //                """#,
-        //            fetchQuery: #"""
-        //                SELECT title, artist, rowid
-        //                FROM album
-        //                WHERE
-        //                    (artist COLLATE NOCASE, title COLLATE NOCASE) >=
-        //                    (SELECT artist COLLATE NOCASE, title COLLATE NOCASE
-        //                    FROM album
-        //                    WHERE rowid = ?)
-        //                ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
-        //                LIMIT ?
-        //                """#
-        //        )
         self.timer = SafeDispatchSourceTimer(queue: .main)
         self.player.delegate = self.playerDelegate
 
