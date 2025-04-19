@@ -74,7 +74,7 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
         audioPlayer.clearQueue()
         try audioPlayer.play(song!.path)
     }
-    
+
     func audioPlayer(
         _ audioPlayer: AudioPlayer,
         renderingComplete decoder: any PCMDecoding
@@ -153,28 +153,26 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
             try randomSong()
         case .albumShuffle:
             try pool.read {
-                let selectedTrack = CommonTableExpression(
-                    named: "selectedTrack",
-                    columns: [
-                        "discNumber",
-                        "trackNumber",
-                        "albumTitle",
-                        "albumArtist",
-                    ],
-                    request: Model.Song.filter(key: ["path": url])
-                )
-
-                return try Model.Song.with(selectedTrack)
-                    .filter(
+                return try Model.Song
+                    .fetchOne(
+                        $0,
                         sql: #"""
-                            albumTitle = (SELECT albumTitle FROM selectedTrack) AND
-                            albumArtist  = (SELECT albumArtist FROM selectedTrack) AND
-                            (discNumber, trackNumber) < (SELECT discNumber, trackNumber FROM selectedTrack)
-                            """#
+                            WITH selectedTrack AS (
+                                SELECT discNumber, trackNumber, albumTitle, artistName
+                                FROM song
+                                WHERE path = ?
+                            )
+                            SELECT song.*, song.rowid
+                            FROM song
+                            WHERE albumTitle = (SELECT albumTitle FROM selectedTrack)
+                            AND artistName = (SELECT artistName FROM selectedTrack)
+                            AND (discNumber, trackNumber) <
+                                (SELECT discNumber, trackNumber FROM selectedTrack)
+                            ORDER BY discNumber DESC, trackNumber DESC
+                            LIMIT 1
+                            """#,
+                        arguments: [url]
                     )
-                    .order(Column("discNumber"), Column("trackNumber"))
-                    .limit(1)
-                    .fetchOne($0)
             } ?? randomStartOfAlbum()
         }
     }
@@ -202,28 +200,26 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
             try randomSong()
         case .albumShuffle:
             try pool.read {
-                let selectedTrack = CommonTableExpression(
-                    named: "selectedTrack",
-                    columns: [
-                        "discNumber",
-                        "trackNumber",
-                        "albumTitle",
-                        "albumArtist",
-                    ],
-                    request: Model.Song.filter(key: ["path": url])
-                )
-
-                return try Model.Song.with(selectedTrack)
-                    .filter(
+                return try Model.Song
+                    .fetchOne(
+                        $0,
                         sql: #"""
-                            albumTitle = (SELECT albumTitle FROM selectedTrack) AND
-                            albumArtist  = (SELECT albumArtist FROM selectedTrack) AND
-                            (discNumber, trackNumber) > (SELECT discNumber, trackNumber FROM selectedTrack)
-                            """#
+                            WITH selectedTrack AS (
+                                SELECT discNumber, trackNumber, albumTitle, artistName
+                                FROM song
+                                WHERE path = ?
+                            )
+                            SELECT song.*, song.rowid
+                            FROM song
+                            WHERE albumTitle = (SELECT albumTitle FROM selectedTrack)
+                            AND artistName = (SELECT artistName FROM selectedTrack)
+                            AND (discNumber, trackNumber) >
+                                (SELECT discNumber, trackNumber FROM selectedTrack)
+                            ORDER BY discNumber, trackNumber
+                            LIMIT 1
+                            """#,
+                        arguments: [url]
                     )
-                    .order(Column("discNumber"), Column("trackNumber"))
-                    .limit(1)
-                    .fetchOne($0)
             } ?? randomStartOfAlbum()
         }
     }
@@ -235,7 +231,7 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
                 sql: #"""
                     SELECT s.rowid, s.*
                     FROM song s
-                    JOIN (SELECT artist, title, FROM album ORDER BY RANDOM() LIMIT 1) a on s.artistName = a.artist AND s.albumTitle = a.title
+                    JOIN (SELECT artist, title FROM album ORDER BY RANDOM() LIMIT 1) a on s.artistName = a.artist AND s.albumTitle = a.title
                     ORDER BY discNumber, trackNumber LIMIT 1
                     """#
             )!
@@ -243,9 +239,11 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
     }
 
     func playNext(_ audioPlayer: AudioPlayer) throws {
-        if !audioPlayer.seek(position: 1) {
+        if audioPlayer.seek(position: 1) == false {
             try audioPlayer.play(firstSong().path)
+            try audioPlayer.play()
         }
+        try audioPlayer.play()
     }
 
     func playPrevious(_ audioPlayer: AudioPlayer) throws {
@@ -253,8 +251,10 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
             let previous = try previousSong(current.path)
             audioPlayer.clearQueue()
             try audioPlayer.enqueue(previous.path, immediate: true)
+            try audioPlayer.play()
         } else {
             try audioPlayer.play(lastSong().path)
+            try audioPlayer.play()
         }
     }
 
@@ -263,7 +263,10 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
         nowPlayingChanged nowPlaying: (any PCMDecoding)?,
         previouslyPlaying: (any PCMDecoding)?
     ) {
-        let current = self.getSong(nowPlaying)!
+        guard let now = nowPlaying else {
+            return
+        }
+        let current = self.getSong(now)!
         let song = try! self.pool
             .read {
                 try Model.Song.filter(key: ["path": current.url]).fetchOne(

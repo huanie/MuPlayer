@@ -21,32 +21,37 @@ struct MainView: View {
         self.player = AudioPlayer()
         self.playerDelegate = AudioPlayerDelegate(pool: db, lastFM: lastFM)
         self.pool = db
-        self.albums = LazyList(
-            self.pool,
-            totalSizeQuery: "SELECT count(rowid) FROM album",
-            anchorQuery: #"""
-                WITH Numbered AS (
-                SELECT title, artist, rowid,
-                    ROW_NUMBER()
-                        OVER (ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE) as rn
-                FROM album )
-
-                SELECT title, artist, rowid
-                FROM Numbered
-                WHERE rn % ? = 1
-                """#,
-            fetchQuery: #"""
-                SELECT title, artist, rowid
-                FROM album
-                WHERE
-                    (artist COLLATE NOCASE, title COLLATE NOCASE) >=
-                    (SELECT artist COLLATE NOCASE, title COLLATE NOCASE
-                    FROM album
-                    WHERE rowid = ?)
-                ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
-                LIMIT ?
-                """#
-        )
+        self.albums = try! pool.read {
+            try Model.Album
+                .order(sql: "artist COLLATE NOCASE, title COLLATE NOCASE")
+                .fetchAll($0)
+        }
+        //        self.albums = LazyList(
+        //            db,
+        //            totalSizeQuery: "SELECT count(rowid) FROM album",
+        //            anchorQuery: #"""
+        //                WITH Numbered AS (
+        //                SELECT title, artist, rowid,
+        //                    ROW_NUMBER()
+        //                        OVER (ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE) as rn
+        //                FROM album )
+        //
+        //                SELECT title, artist, rowid
+        //                FROM Numbered
+        //                WHERE rn % ? = 1
+        //                """#,
+        //            fetchQuery: #"""
+        //                SELECT title, artist, rowid
+        //                FROM album
+        //                WHERE
+        //                    (artist COLLATE NOCASE, title COLLATE NOCASE) >=
+        //                    (SELECT artist COLLATE NOCASE, title COLLATE NOCASE
+        //                    FROM album
+        //                    WHERE rowid = ?)
+        //                ORDER BY artist COLLATE NOCASE, title COLLATE NOCASE
+        //                LIMIT ?
+        //                """#
+        //        )
         self.timer = SafeDispatchSourceTimer(queue: .main)
         self.player.delegate = self.playerDelegate
 
@@ -62,7 +67,8 @@ struct MainView: View {
     @State private var player: AudioPlayer
     @State private var playerDelegate: AudioPlayerDelegate
     private var timer: SafeDispatchSourceTimer
-    private let albums: LazyList<Model.Album>
+    private let albums: [Model.Album]
+    @Environment(MenuBarModel.self) var menuBarModel
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(SearchModel.self) var searchModel
@@ -141,6 +147,7 @@ struct MainView: View {
                             try! playerDelegate.playNext(player)
                         } else {
                             player.resume()
+                            try! player.play()
                         }
                     },
                     pause: {
@@ -195,6 +202,8 @@ struct MainView: View {
             }
         }
         .onAppear {
+            menuBarModel.player = self.player
+            menuBarModel.playerDelegate = self.playerDelegate
             timer.timer.setEventHandler {
                 if let time = self.player.time {
                     self.songProgress = time.currentTime
@@ -224,6 +233,8 @@ struct MainView: View {
             }
         }
         .onDisappear {
+            menuBarModel.player = nil
+            menuBarModel.playerDelegate = nil
             playerDelegate.currentSong = nil
             player.stop()
             timer.suspend()
@@ -281,4 +292,3 @@ struct MainView: View {
         }
     }
 }
-
