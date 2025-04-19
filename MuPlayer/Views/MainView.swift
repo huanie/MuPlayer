@@ -267,28 +267,36 @@ struct MainView: View {
 
         commandCenter.nextTrackCommand.isEnabled = true
         commandCenter.nextTrackCommand.addTarget { _ in
+            try! playerDelegate.playNext(player)
             return .success
         }
 
         commandCenter.previousTrackCommand.isEnabled = true
         commandCenter.previousTrackCommand.addTarget { event in
+            try! playerDelegate.playPrevious(player)
             return .success
         }
 
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget(handler: { _ in
+            player.pause()
             return .success
         })
 
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget(handler: { _ in
+            try! player.play()
             return .success
         })
 
         commandCenter.changePlaybackPositionCommand.isEnabled = true
-        commandCenter.changePlaybackPositionCommand.addTarget {
-            print($0)
-            return .success
+        commandCenter.changePlaybackPositionCommand.addTarget { event in
+            if let timeEvent = event as? MPChangePlaybackPositionCommandEvent {
+                player.seek(time: timeEvent.positionTime)
+                return .success
+            } else {
+                return .commandFailed
+            }
         }
     }
 }
