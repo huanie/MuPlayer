@@ -1,3 +1,5 @@
+![Screenhot 1](Screenshots/screenshot1.png)
+
 # Features
 
 * NowPlaying
