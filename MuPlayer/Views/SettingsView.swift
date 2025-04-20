@@ -56,13 +56,15 @@ struct SettingsView: View {
 struct LastFMCredentialsView: View {
     let lastFM: LastFM
     enum LoginState { case none, ok, error }
-    @State var username: String = ""
-    @State var password: String = ""
+    @State var username: String
+    @State var password: String
     @State var loginState = LoginState.none
     @State var showError = false
     @State var errorMessage: String = ""
     init(lastFM: LastFM) {
         self.lastFM = lastFM
+        self.username = lastFM.username
+        self.password = lastFM.password
     }
     var body: some View {
         if loginState == .ok {

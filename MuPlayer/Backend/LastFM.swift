@@ -12,8 +12,6 @@ import SwiftUI
 
 private let API_PATH = "http://ws.audioscrobbler.com/2.0/"
 class LastFM {
-    private let defaults = UserDefaults.standard
-
     func scrobble(_ song: borrowing Model.Song) {
         if apiSession.isEmpty {
             return
@@ -151,18 +149,18 @@ class LastFM {
     }
 
     var apiSession: String {
-        get { defaults.string(forKey: "lastFMAPISession") ?? "" }
-        set { defaults.set(newValue, forKey: "lastFMAPISession") }
+        get { UserDefaults.standard.string(forKey: "lastFMAPISession") ?? "" }
+        set { UserDefaults.standard.set(newValue, forKey: "lastFMAPISession") }
     }
 
     var username: String {
-        get { defaults.string(forKey: "lastFMUsername") ?? "" }
-        set { defaults.set(newValue, forKey: "lastFMUsername") }
+        get { UserDefaults.standard.string(forKey: "lastFMUsername") ?? "" }
+        set { UserDefaults.standard.set(newValue, forKey: "lastFMUsername") }
     }
 
     var password: String {
-        get { defaults.string(forKey: "lastFMPassword") ?? "" }
-        set { defaults.set(newValue, forKey: "lastFMPassword") }
+        get { UserDefaults.standard.string(forKey: "lastFMPassword") ?? "" }
+        set { UserDefaults.standard.set(newValue, forKey: "lastFMPassword") }
     }
 
     enum VerificationState: Int {
@@ -172,9 +170,9 @@ class LastFM {
     var isVerified: VerificationState {
         get {
             VerificationState(
-                rawValue: defaults.integer(forKey: "lastFMisVerified")
+                rawValue: UserDefaults.standard.integer(forKey: "lastFMisVerified")
             ) ?? .none
         }
-        set { defaults.set(newValue.rawValue, forKey: "lastFMisVerified") }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: "lastFMisVerified") }
     }
 }

@@ -46,6 +46,7 @@ struct MuPlayerApp: App {
                         menuBarModel.player?.clearQueue()
                         try! menuBarModel.player?.play(x.path)
                         try! menuBarModel.player?.play()
+                        menuBarModel.randomAlbumAction?(x)
                     }
                 }
                 .disabled(isScanning)

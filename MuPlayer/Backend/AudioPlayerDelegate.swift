@@ -20,30 +20,44 @@ private let SEQUENTIAL_ORDERING_DESC =
 
 @Observable
 class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
-    enum PlaybackMode: Int, RawRepresentable {
-        case sequential
-        case shuffle
-        case albumShuffle
+    enum PlaybackMode: Int {
+        case sequential, shuffle, albumShuffle
+    }
+    var defaultMode: PlaybackMode {
+        get {
+            PlaybackMode(
+                rawValue: UserDefaults.standard.integer(forKey: "playbackMode")
+            ) ?? .sequential
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: "playbackMode")
+        }
     }
     @ObservationIgnored let pool: DatabasePool
     let lastFM: LastFM
     var playbackState = AudioPlayer.PlaybackState.paused
     var progress = 0
-    var mode = PlaybackMode.sequential
+    var mode: PlaybackMode {
+        didSet {
+            defaultMode = mode
+        }
+    }
     var currentSong: Model.Song?
     init(
         pool: DatabasePool,
         playbackState: AudioPlayer.PlaybackState = AudioPlayer.PlaybackState
             .paused,
         progress: Int = 0,
-        mode: PlaybackMode = PlaybackMode.sequential,
         lastFM: LastFM
     ) {
         self.pool = pool
         self.playbackState = playbackState
         self.progress = progress
-        self.mode = mode
         self.lastFM = lastFM
+        self.mode =
+            PlaybackMode(
+                rawValue: UserDefaults.standard.integer(forKey: "playbackMode")
+            ) ?? .sequential
     }
 
     func audioPlayer(

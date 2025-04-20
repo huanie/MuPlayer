@@ -12,5 +12,6 @@ import SwiftUI
 @Observable
 class MenuBarModel {
     var playerDelegate: AudioPlayerDelegate? = nil
+    var randomAlbumAction: ((Model.Song) -> Void)? = nil
     @ObservationIgnored var player: AudioPlayer? = nil
 }

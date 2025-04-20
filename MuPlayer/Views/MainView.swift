@@ -128,10 +128,10 @@ struct MainView: View {
                         player.pause()
                     },
                     backward: {
-                        try! playerDelegate.playPrevious(player)
+                        self.previousSong()
                     },
                     forward: {
-                        try! playerDelegate.playNext(player)
+                        self.nextSong()
                     },
                     playbackState: $playerDelegate.playbackState
                 )
@@ -143,19 +143,7 @@ struct MainView: View {
                     },
                     currentSong: self.$playerDelegate.currentSong,
                     songProgress: $songProgress,
-                    clickAction: { song in
-                        try! pool.read {
-                            let album = try! Model.Album.filter(
-                                sql: "artist = ? AND title = ?",
-                                arguments: [song.artistName, song.albumTitle]
-                            ).fetchOne($0)
-                            let song = try! Model.Song.filter(key: [
-                                "path": song.path
-                            ]).fetchOne($0)
-                            scrollToAlbum = album
-                            scrollToSong = song
-                        }
-                    }
+                    clickAction: scrollToCurrent
                 )
                 .frame(minWidth: sliderWidth)
             }
@@ -178,6 +166,7 @@ struct MainView: View {
         .onAppear {
             menuBarModel.player = self.player
             menuBarModel.playerDelegate = self.playerDelegate
+            menuBarModel.randomAlbumAction = scrollToCurrent
             timer.timer.setEventHandler {
                 if let time = self.player.time {
                     self.songProgress = time.currentTime
@@ -209,6 +198,7 @@ struct MainView: View {
         .onDisappear {
             menuBarModel.player = nil
             menuBarModel.playerDelegate = nil
+            menuBarModel.randomAlbumAction = nil
             playerDelegate.currentSong = nil
             player.stop()
             timer.suspend()
@@ -236,18 +226,39 @@ struct MainView: View {
             }
     }
 
+    private func scrollToCurrent(_ song: Model.Song) {
+        try! pool.read {
+            let album = try! Model.Album.filter(
+                sql: "artist = ? AND title = ?",
+                arguments: [song.artistName, song.albumTitle]
+            ).fetchOne($0)
+            scrollToAlbum = album
+            scrollToSong = song
+        }
+    }
+
+    private func nextSong() {
+        try! playerDelegate.playNext(player)
+        self.scrollToCurrent(playerDelegate.currentSong!)
+    }
+
+    private func previousSong() {
+        try! playerDelegate.playPrevious(player)
+        self.scrollToCurrent(playerDelegate.currentSong!)
+    }
+
     private func initCommandCenter() {
         let commandCenter = MPRemoteCommandCenter.shared()
 
         commandCenter.nextTrackCommand.isEnabled = true
         commandCenter.nextTrackCommand.addTarget { _ in
-            try! playerDelegate.playNext(player)
+            self.nextSong()
             return .success
         }
 
         commandCenter.previousTrackCommand.isEnabled = true
         commandCenter.previousTrackCommand.addTarget { event in
-            try! playerDelegate.playPrevious(player)
+            self.previousSong()
             return .success
         }
 
