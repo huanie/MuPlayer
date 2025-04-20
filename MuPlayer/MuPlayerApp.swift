@@ -43,9 +43,7 @@ struct MuPlayerApp: App {
                     if let x = try! menuBarModel.playerDelegate?
                         .randomStartOfAlbum()
                     {
-                        menuBarModel.player?.clearQueue()
                         try! menuBarModel.player?.play(x.path)
-                        try! menuBarModel.player?.play()
                         menuBarModel.randomAlbumAction?(x)
                     }
                 }

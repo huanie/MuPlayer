@@ -85,7 +85,6 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
                 .limit(1)
                 .fetchOne($0)
         }
-        audioPlayer.clearQueue()
         try audioPlayer.play(song!.path)
     }
 
@@ -252,24 +251,29 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
         }
     }
 
-    func playNext(_ audioPlayer: AudioPlayer) throws {
-        if audioPlayer.seek(position: 1) == false {
-            try audioPlayer.play(firstSong().path)
-            try audioPlayer.play()
+    func playNext(_ audioPlayer: AudioPlayer, nowPlaying: (Model.Song) -> Void) throws {
+        let song =
+        if let current = currentSong {
+            try nextSong(current.path)
+        } else {
+            try firstSong()
         }
-        try audioPlayer.play()
+        try audioPlayer.play(song.path)
+        nowPlaying(song)
     }
 
-    func playPrevious(_ audioPlayer: AudioPlayer) throws {
-        if let current = currentSong {
-            let previous = try previousSong(current.path)
-            audioPlayer.clearQueue()
-            try audioPlayer.enqueue(previous.path, immediate: true)
-            try audioPlayer.play()
-        } else {
-            try audioPlayer.play(lastSong().path)
-            try audioPlayer.play()
-        }
+    func playPrevious(
+        _ audioPlayer: AudioPlayer,
+        nowPlaying: (Model.Song) -> Void
+    ) throws {
+        let song =
+            if let current = currentSong {
+                try previousSong(current.path)
+            } else {
+                try lastSong()
+            }
+        try audioPlayer.play(song.path)
+        nowPlaying(song)
     }
 
     func audioPlayer(

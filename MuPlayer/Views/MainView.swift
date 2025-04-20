@@ -118,7 +118,7 @@ struct MainView: View {
                 MediaControlView(
                     play: {
                         if playerDelegate.currentSong == nil {
-                            try! playerDelegate.playNext(player)
+                            try! playerDelegate.playNext(player, nowPlaying: self.scrollToCurrent)
                         } else {
                             player.resume()
                             try! player.play()
@@ -227,24 +227,25 @@ struct MainView: View {
     }
 
     private func scrollToCurrent(_ song: Model.Song) {
-        try! pool.read {
-            let album = try! Model.Album.filter(
+        let album = try! pool.read {
+            try! Model.Album.filter(
                 sql: "artist = ? AND title = ?",
                 arguments: [song.artistName, song.albumTitle]
             ).fetchOne($0)
+        }
+        DispatchQueue.main.async {
             scrollToAlbum = album
             scrollToSong = song
         }
     }
 
     private func nextSong() {
-        try! playerDelegate.playNext(player)
-        self.scrollToCurrent(playerDelegate.currentSong!)
+        try! playerDelegate.playNext(player, nowPlaying: scrollToCurrent)
+
     }
 
     private func previousSong() {
-        try! playerDelegate.playPrevious(player)
-        self.scrollToCurrent(playerDelegate.currentSong!)
+        try! playerDelegate.playPrevious(player, nowPlaying: scrollToCurrent)
     }
 
     private func initCommandCenter() {
