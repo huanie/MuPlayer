@@ -191,6 +191,7 @@ struct MainView: View {
         .onChange(of: searchModel.selectedSong) {
             if let song = model.selectedSong {
                 try! player.play(song.path)
+                scrollToCurrent(song)
                 model.selectedSong = nil
             }
         }
