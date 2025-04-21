@@ -120,12 +120,11 @@ struct MainView: View {
                         if playerDelegate.currentSong == nil {
                             try! playerDelegate.playNext(player, nowPlaying: self.scrollToCurrent)
                         } else {
-                            player.resume()
-                            try! player.play()
+                            playerDelegate.resume(player)
                         }
                     },
                     pause: {
-                        player.pause()
+                        playerDelegate.pause(player)
                     },
                     backward: {
                         self.previousSong()

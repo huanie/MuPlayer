@@ -120,6 +120,16 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
                 .fetchOne($0)!
         }
     }
+    
+    func pause(_ audioPlayer: AudioPlayer) {
+        MPNowPlayingInfoCenter.default().playbackState = .paused
+        audioPlayer.pause()
+    }
+    
+    func resume(_ audioPlayer: AudioPlayer) {
+        MPNowPlayingInfoCenter.default().playbackState = .playing
+        audioPlayer.resume()
+    }
 
     func firstSong() throws -> Model.Song {
         switch mode {
