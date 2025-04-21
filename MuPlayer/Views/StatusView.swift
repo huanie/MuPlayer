@@ -64,11 +64,7 @@ struct StatusView: View {
                 .lineLimit(1)
                 .allowsTightening(true)
                 .onHover {
-                    if $0 {
-                        hovered = true
-                    } else {
-                        hovered = false
-                    }
+                    hovered = $0
                 }
             } else {
                 Text(Globals.APP_NAME).foregroundStyle(.primary)
