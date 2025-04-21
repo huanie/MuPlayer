@@ -253,7 +253,6 @@ struct MainView: View {
 
     private func nextSong() {
         try! playerDelegate.playNext(player, nowPlaying: scrollToCurrent)
-
     }
 
     private func previousSong() {

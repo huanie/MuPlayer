@@ -27,10 +27,14 @@ struct TrackListView<AnyList: RandomAccessCollection<Model.Song>>: View {
                     )
                 }
                 .onChange(of: scrollTo) {
-                    selectedSong = scrollTo
-                    withAnimation {
-                        scrollReader.scrollTo(scrollTo, anchor: .center)
+                    guard let x = scrollTo else {
+                        return
                     }
+                    selectedSong = x
+                    withAnimation {
+                        scrollReader.scrollTo(x, anchor: .center)
+                    }
+                    scrollTo = nil
                 }
                 // double click
                 .contextMenu(

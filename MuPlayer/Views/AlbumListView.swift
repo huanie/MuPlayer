@@ -40,10 +40,14 @@ struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
                 .listRowSeparator(.hidden)
             }
             .onChange(of: scrollTo) {
-                selectedAlbum = scrollTo
-                withAnimation {
-                    scrollReader.scrollTo(scrollTo, anchor: .center)
+                guard let x = scrollTo else {
+                    return
                 }
+                selectedAlbum = x
+                withAnimation {
+                    scrollReader.scrollTo(x, anchor: .center)
+                }
+                scrollTo = nil
             }
             // double click
             .contextMenu(
@@ -54,7 +58,7 @@ struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
                 if let album = x.first {
                     playAlbum(album)
                 }
-            }            
+            }
         }
     }
     private struct CentreAlignedLabelStyle: LabelStyle {
@@ -66,4 +70,3 @@ struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
         }
     }
 }
-
