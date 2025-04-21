@@ -120,15 +120,23 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
                 .fetchOne($0)!
         }
     }
-    
-    func pause(_ audioPlayer: AudioPlayer) {
-        MPNowPlayingInfoCenter.default().playbackState = .paused
+
+    func pause(_ audioPlayer: AudioPlayer, progress: TimeInterval) {
+        let remoteCenter = MPNowPlayingInfoCenter.default()
+        remoteCenter.playbackState = .paused
+        remoteCenter.nowPlayingInfo?[
+            MPNowPlayingInfoPropertyElapsedPlaybackTime
+        ] = NSNumber(value: progress)
         audioPlayer.pause()
     }
-    
-    func resume(_ audioPlayer: AudioPlayer) {
-        MPNowPlayingInfoCenter.default().playbackState = .playing
-        audioPlayer.resume()
+
+    func resume(_ audioPlayer: AudioPlayer, progress: TimeInterval) {
+        let remoteCenter = MPNowPlayingInfoCenter.default()
+        remoteCenter.playbackState = .playing
+        remoteCenter.nowPlayingInfo?[
+            MPNowPlayingInfoPropertyElapsedPlaybackTime
+        ] = NSNumber(value: progress)
+        try! audioPlayer.play()
     }
 
     func firstSong() throws -> Model.Song {
@@ -261,13 +269,15 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
         }
     }
 
-    func playNext(_ audioPlayer: AudioPlayer, nowPlaying: (Model.Song) -> Void) throws {
+    func playNext(_ audioPlayer: AudioPlayer, nowPlaying: (Model.Song) -> Void)
+        throws
+    {
         let song =
-        if let current = currentSong {
-            try nextSong(current.path)
-        } else {
-            try firstSong()
-        }
+            if let current = currentSong {
+                try nextSong(current.path)
+            } else {
+                try firstSong()
+            }
         try audioPlayer.play(song.path)
         nowPlaying(song)
     }

@@ -40,9 +40,7 @@ struct StatusView: View {
                         }
 
                         SeekSlider(
-                            seekAction: {
-                                seekAction($0)
-                            },
+                            seekAction: seekAction,
                             songDuration: song.duration,
                             songProgress: $songProgress
                         )

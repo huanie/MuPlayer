@@ -48,7 +48,7 @@ struct MainView: View {
     @Environment(SearchModel.self) var searchModel
     @State private var selectedAlbum: Model.Album? = nil
     @State private var sliderWidth: CGFloat = 0
-    @State private var songProgress: TimeInterval = 0
+    @State private var songProgress = SongProgressModel()
     @State private var scrollToAlbum: Model.Album? = nil
     @State private var scrollToSong: Model.Song? = nil
     @AppStorage("volume") var volume: Double = 0.1
@@ -118,13 +118,20 @@ struct MainView: View {
                 MediaControlView(
                     play: {
                         if playerDelegate.currentSong == nil {
-                            try! playerDelegate.playNext(player, nowPlaying: self.scrollToCurrent)
+                            try! playerDelegate.playNext(
+                                player,
+                                nowPlaying: self.scrollToCurrent
+                            )
                         } else {
-                            playerDelegate.resume(player)
+                            playerDelegate.resume(
+                                player,
+                                progress: songProgress.current
+                            )
                         }
                     },
                     pause: {
-                        playerDelegate.pause(player)
+                        playerDelegate
+                            .pause(player, progress: songProgress.current)
                     },
                     backward: {
                         self.previousSong()
@@ -141,10 +148,12 @@ struct MainView: View {
                         player.seek(time: $0)
                         MPNowPlayingInfoCenter
                             .default()
-                            .nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = $0
+                            .nowPlayingInfo?[
+                                MPNowPlayingInfoPropertyElapsedPlaybackTime
+                            ] = NSNumber(value: $0)
                     },
                     currentSong: self.$playerDelegate.currentSong,
-                    songProgress: $songProgress,
+                    songProgress: $songProgress.current,
                     clickAction: scrollToCurrent
                 )
                 .frame(minWidth: sliderWidth)
@@ -171,7 +180,7 @@ struct MainView: View {
             menuBarModel.randomAlbumAction = scrollToCurrent
             timer.timer.setEventHandler {
                 if let time = self.player.time {
-                    self.songProgress = time.currentTime
+                    self.songProgress.current = time.currentTime
                 }
             }
         }
@@ -268,13 +277,19 @@ struct MainView: View {
 
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget(handler: { _ in
-            playerDelegate.pause(player)
+            DispatchQueue.main.async {
+                print(self.songProgress.current)
+                self.playerDelegate
+                    .pause(self.player, progress: self.songProgress.current)
+            }
             return .success
         })
 
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget(handler: { _ in
-            playerDelegate.resume(player)
+            DispatchQueue.main.async {
+                playerDelegate.resume(player, progress: songProgress.current)
+            }
             return .success
         })
 
