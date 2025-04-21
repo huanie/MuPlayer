@@ -139,6 +139,9 @@ struct MainView: View {
                 StatusView(
                     seekAction: {
                         player.seek(time: $0)
+                        MPNowPlayingInfoCenter
+                            .default()
+                            .nowPlayingInfo?[MPNowPlayingInfoPropertyElapsedPlaybackTime] = $0
                     },
                     currentSong: self.$playerDelegate.currentSong,
                     songProgress: $songProgress,
@@ -265,13 +268,13 @@ struct MainView: View {
 
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget(handler: { _ in
-            player.pause()
+            playerDelegate.pause(player)
             return .success
         })
 
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget(handler: { _ in
-            try! player.play()
+            playerDelegate.resume(player)
             return .success
         })
 
