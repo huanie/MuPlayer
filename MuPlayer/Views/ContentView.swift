@@ -40,8 +40,9 @@ struct ContentView: View {
         } else if isScanning == .scanning {
             ProgressView {
                 Text("Scanning")
-            }.progressViewStyle(.circular)
-                .padding()
+            }
+            .progressViewStyle(.circular)
+            .padding()
         } else {
             MainView(
                 try! DatabasePool(

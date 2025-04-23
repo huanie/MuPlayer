@@ -21,10 +21,20 @@ enum MusicScanner {
     }
 
     static func clearDatabase() throws {
-        try FileManager.default.removeItem(at: Globals.DATABASE_PATH)
+        let queue = try DatabaseQueue(
+            path: Globals.DATABASE_PATH.path(percentEncoded: false)
+        )
+        try queue.write {
+            try Model.Song.deleteAll($0)
+            try Model.Album.deleteAll($0)
+            try Model.Directory.deleteAll($0)
+            try Model.Artist.deleteAll($0)
+            try $0.execute(literal: "DELETE FROM songSearch")
+        }
     }
 
-    static func rescan(directories: Set<URL>, destination: URL) -> [ScanError]? {
+    static func rescan(directories: Set<URL>, destination: URL) -> [ScanError]?
+    {
         try! clearDatabase()
         return scan(directories: directories, destination: destination)
     }
