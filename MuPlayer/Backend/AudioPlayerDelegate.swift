@@ -121,21 +121,23 @@ class AudioPlayerDelegate: NSObject, AudioPlayer.Delegate {
         }
     }
 
-    func pause(_ audioPlayer: AudioPlayer, progress: TimeInterval) {
+    func pause(_ audioPlayer: AudioPlayer) {
+        guard let time = audioPlayer.time else { return }
         let remoteCenter = MPNowPlayingInfoCenter.default()
         remoteCenter.playbackState = .paused
         remoteCenter.nowPlayingInfo?[
             MPNowPlayingInfoPropertyElapsedPlaybackTime
-        ] = NSNumber(value: progress)
+        ] = NSNumber(value: time.currentTime)
         audioPlayer.pause()
     }
 
-    func resume(_ audioPlayer: AudioPlayer, progress: TimeInterval) {
+    func resume(_ audioPlayer: AudioPlayer) {
+        guard let time = audioPlayer.time else { return }
         let remoteCenter = MPNowPlayingInfoCenter.default()
         remoteCenter.playbackState = .playing
         remoteCenter.nowPlayingInfo?[
             MPNowPlayingInfoPropertyElapsedPlaybackTime
-        ] = NSNumber(value: progress)
+        ] = NSNumber(value: time.currentTime)
         try! audioPlayer.play()
     }
 

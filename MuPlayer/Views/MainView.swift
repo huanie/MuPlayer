@@ -123,15 +123,11 @@ struct MainView: View {
                                 nowPlaying: self.scrollToCurrent
                             )
                         } else {
-                            playerDelegate.resume(
-                                player,
-                                progress: songProgress.current
-                            )
+                            playerDelegate.resume(player)
                         }
                     },
                     pause: {
-                        playerDelegate
-                            .pause(player, progress: songProgress.current)
+                        playerDelegate.pause(player)
                     },
                     backward: {
                         self.previousSong()
@@ -277,9 +273,8 @@ struct MainView: View {
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget(handler: { _ in
             DispatchQueue.main.async {
-                print(self.songProgress.current)
                 self.playerDelegate
-                    .pause(self.player, progress: self.songProgress.current)
+                    .pause(self.player)
             }
             return .success
         })
@@ -287,7 +282,7 @@ struct MainView: View {
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget(handler: { _ in
             DispatchQueue.main.async {
-                playerDelegate.resume(player, progress: songProgress.current)
+                playerDelegate.resume(player)
             }
             return .success
         })
