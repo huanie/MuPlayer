@@ -30,10 +30,15 @@ struct StatusView: View {
 
                     VStack(alignment: .center, spacing: 0) {
                         VStack(spacing: 0) {
-                            Text(song.songTitle).foregroundStyle(.primary)
+                            Text(song.songTitle)
+                                .foregroundStyle(.primary)
+                                .allowsTightening(true)
+                                .lineLimit(1)
                             Text(
                                 "\(song.artistName) \u{2013} \(song.albumTitle)"
                             )
+                            .allowsTightening(true)
+                            .lineLimit(1)
                             .foregroundStyle(.secondary)
                             .font(.caption)
                             .frame(maxWidth: .infinity)
@@ -44,8 +49,6 @@ struct StatusView: View {
                             songDuration: song.duration,
                             songProgress: $songProgress
                         )
-                        .frame(maxWidth: .infinity)
-
                     }
                 }
                 .gesture(

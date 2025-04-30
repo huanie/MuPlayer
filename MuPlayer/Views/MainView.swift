@@ -152,7 +152,7 @@ struct MainView: View {
                     songProgress: $songProgress.current,
                     clickAction: scrollToCurrent
                 )
-                .frame(minWidth: sliderWidth)
+                .frame(width: sliderWidth)
             }
             ToolbarItemGroup(placement: .confirmationAction) {
                 VolumeSliderView(volume: $volume)
