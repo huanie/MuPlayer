@@ -217,6 +217,7 @@ struct MainView: View {
             return
         }
         let search = FTS5Pattern(matchingPhrase: query)
+
         self.searchModel.searchResult =
             try! pool.read {
                 try! Model.Song
@@ -273,8 +274,7 @@ struct MainView: View {
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget(handler: { _ in
             DispatchQueue.main.async {
-                self.playerDelegate
-                    .pause(self.player)
+                playerDelegate.pause(player)
             }
             return .success
         })
