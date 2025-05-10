@@ -46,11 +46,11 @@ struct MainView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.appearsActive) var appearsActive
     @Environment(SearchModel.self) var searchModel
-    @State private var selectedAlbum: Model.Album? = nil
+    @State private var selectedAlbum: Model.Album.ID? = nil
     @State private var sliderWidth: CGFloat = 0
     @State private var songProgress = SongProgressModel()
-    @State private var scrollToAlbum: Model.Album? = nil
-    @State private var scrollToSong: Model.Song? = nil
+    @State private var scrollToAlbum: Model.Album.ID? = nil
+    @State private var scrollToSong: Model.Song.ID? = nil
     @AppStorage("volume") var volume: Double = 0.1
     let pool: DatabasePool
 
@@ -62,8 +62,15 @@ struct MainView: View {
                 selectedAlbum: $selectedAlbum,
                 currentSong: self.$playerDelegate.currentSong,
                 scrollTo: $scrollToAlbum,
-                playAlbum: {
-                    try! playerDelegate.playAlbum(player, album: $0)
+                playAlbum: { rowid in
+                    let album = try! pool.read {
+                        try Model.Album.fetchOne($0, sql: #"""
+                            SELECT rowid, *
+                            FROM album
+                            WHERE rowid = ?
+                            """#, arguments: [rowid])
+                    }
+                    try! playerDelegate.playAlbum(player, album: album!)
                 }
             )
             .frame(minWidth: 250, idealWidth: 300)
@@ -71,25 +78,26 @@ struct MainView: View {
             DetailView(isMain: selectedAlbum != nil) {
                 TrackListView(
                     songs: try! pool.read {
-                        try! Model.Song
-                            .filter(
-                                sql: "albumTitle = ? AND artistName = ?",
-                                arguments: [
-                                    selectedAlbum!.title,
-                                    selectedAlbum!.artist,
-                                ]
-                            )
-                            .order(
-                                Column("discNumber"),
-                                Column("trackNumber")
-                            )
-                            .fetchAll($0)
+                        try! Model.Song.fetchAll($0, sql: #"""
+                            SELECT s.rowid, s.*
+                            FROM song s
+                            JOIN album a ON a.artist = s.artistName AND a.title = s.albumTitle
+                            WHERE a.rowid = ?
+                            ORDER BY s.discNumber, s.trackNumber
+                            """#, arguments: [selectedAlbum])
                     },
                     currentSong: $playerDelegate.currentSong,
                     scrollTo: $scrollToSong,
                     playbackState: playerDelegate.playbackState,
-                    playSong: {
-                        try! self.player.play($0.path)
+                    playSong: { rowid in
+                        let song = try! pool.read {
+                            try URL.fetchOne($0, sql: #"""
+                                SELECT path
+                                FROM song
+                                WHERE rowid = ?
+                                """#, arguments: [rowid])
+                        }
+                        try! self.player.play(song!)
                     }
                 )
             } empty: {
@@ -150,7 +158,7 @@ struct MainView: View {
                     },
                     currentSong: self.$playerDelegate.currentSong,
                     songProgress: $songProgress.current,
-                    clickAction: scrollToCurrent
+                    clickAction: self.scrollToCurrent
                 )
                 .frame(width: sliderWidth)
             }
@@ -237,14 +245,15 @@ struct MainView: View {
 
     private func scrollToCurrent(_ song: Model.Song) {
         let album = try! pool.read {
-            try! Model.Album.filter(
-                sql: "artist = ? AND title = ?",
-                arguments: [song.artistName, song.albumTitle]
-            ).fetchOne($0)
+            try Int64.fetchOne($0, sql: #"""
+                SELECT rowid
+                FROM album
+                WHERE artist = ? AND title = ?
+                """#, arguments: [song.artistName, song.albumTitle])
         }
         DispatchQueue.main.async {
             scrollToAlbum = album
-            scrollToSong = song
+            scrollToSong = song.id
         }
     }
 

@@ -10,11 +10,11 @@ import SwiftUI
 
 struct TrackListView<AnyList: RandomAccessCollection<Model.Song>>: View {
     let songs: AnyList
-    @State var selectedSong: Model.Song?
+    @State var selectedSong: Model.Song.ID?
     @Binding var currentSong: Model.Song?
-    @Binding var scrollTo: Model.Song?
+    @Binding var scrollTo: Model.Song.ID?
     let playbackState: AudioPlayer.PlaybackState
-    let playSong: (Model.Song) -> Void
+    let playSong: (Model.Song.ID) -> Void
     var body: some View {
         VStack {
             SongCoverView(song: songs.first)
@@ -25,20 +25,19 @@ struct TrackListView<AnyList: RandomAccessCollection<Model.Song>>: View {
                         playbackState: playbackState,
                         currentSong: currentSong,
                     )
+                    .tag(song.id)
                 }
                 .onChange(of: scrollTo) {
                     guard let x = scrollTo else {
                         return
                     }
                     selectedSong = x
-                    withAnimation {
-                        scrollReader.scrollTo(x, anchor: .center)
-                    }
+                    scrollReader.scrollTo(x, anchor: .center)
                     scrollTo = nil
                 }
                 // double click
                 .contextMenu(
-                    forSelectionType: Model.Song.self,
+                    forSelectionType: Model.Song.ID.self,
                     menu: { _ in
                     }
                 ) { x in
@@ -81,7 +80,6 @@ private struct TrackListRowView: View {
             )
             .padding(.trailing)
         }
-        .tag(song)
         .font(.title3)
         .listRowSeparator(.hidden)
     }

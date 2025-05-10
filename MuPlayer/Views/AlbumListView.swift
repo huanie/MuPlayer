@@ -9,10 +9,10 @@ import SwiftUI
 
 struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
     let albums: AnyList
-    @Binding var selectedAlbum: Model.Album?
+    @Binding var selectedAlbum: Model.Album.ID?
     @Binding var currentSong: Model.Song?
-    @Binding var scrollTo: Model.Album?
-    let playAlbum: (Model.Album) -> Void
+    @Binding var scrollTo: Model.Album.ID?
+    let playAlbum: (Model.Album.ID) -> Void
     var body: some View {
         ScrollViewReader { scrollReader in
             List(albums, selection: $selectedAlbum) { album in
@@ -33,7 +33,7 @@ struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
                 }
                 .labelStyle(CentreAlignedLabelStyle())
                 .padding(.vertical, 5)
-                .tag(album)
+                .tag(album.id)
                 .lineLimit(1)
                 .allowsTightening(true)
                 .font(.title2)
@@ -44,14 +44,12 @@ struct AlbumListView<AnyList: RandomAccessCollection<Model.Album>>: View {
                     return
                 }
                 selectedAlbum = x
-                withAnimation {
-                    scrollReader.scrollTo(x, anchor: .center)
-                }
+                scrollReader.scrollTo(x, anchor: .center)
                 scrollTo = nil
             }
             // double click
             .contextMenu(
-                forSelectionType: Model.Album.self,
+                forSelectionType: Model.Album.ID.self,
                 menu: { _ in
                 }
             ) { x in
